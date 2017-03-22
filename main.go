@@ -16,6 +16,8 @@ var (
 	address  string
 	port     string
 	addrport string
+	redissvr string
+	timeout  string
 
 	// channel
 	requests chan *ASNRequest
@@ -24,6 +26,8 @@ var (
 func init() {
 	flag.StringVar(&address, "address", "0.0.0.0", "address to bind to")
 	flag.StringVar(&port, "port", "9999", "port to bind to")
+	flag.StringVar(&redissvr, "redis", "localhost:6379", "redis connection string")
+	flag.StringVar(&timeout, "timeout", "1440", "cache timeout")
 	flag.Parse()
 
 	addrport = address + ":" + port
@@ -34,7 +38,8 @@ func main() {
 	defer close(requests)
 
 	// create and start new processor
-	processor := NewASNProcessor(requests)
+	//processor := NewASNProcessor(requests)
+	processor := NewRedisASNProcessor(requests, redissvr, timeout, "whois.cymru.com", "43")
 	go processor.Process()
 
 	router := mux.NewRouter()
